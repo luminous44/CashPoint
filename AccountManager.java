@@ -60,6 +60,53 @@ public class AccountManager {
         con.setAutoCommit(true);
     }
 
+     // add money 
+     public void addMoney(long accN) throws SQLException {
+        sc.nextLine();
+        System.out.print("Enter Amount : ");
+        int amount = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Enter PIN : ");
+        int pin = sc.nextInt();
+        try {
+            con.setAutoCommit(false);
+            if (isValidPin(accN, pin)) {
+                PreparedStatement ps2 = con.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE accNo = ?;");
+                ps2.setInt(1, amount);
+                ps2.setLong(2, accN);
+                int row = ps2.executeUpdate();
+                if (row > 0) {
+                    System.out.println(amount + " TK. Add Successfully");
+                    con.commit();
+                    con.setAutoCommit(true);
+                } else {
+                    System.out.println("Failed to Add Money");
+                    con.rollback();
+                    con.setAutoCommit(true);
+                }
+
+            } else {
+                System.out.println("Incorrect PIN, Try again");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        con.setAutoCommit(true);
+    }
+     // valid Pin
+     public boolean isValidPin(long acc, int pin) throws SQLException {
+
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM accounts WHERE accNo = ? AND pin = ?;");
+        ps.setLong(1, acc);
+        ps.setInt(2, pin);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
    
    
     
