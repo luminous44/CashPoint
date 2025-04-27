@@ -129,5 +129,49 @@ public class AccountManager {
         }
 
     }
+
+     // Transfer money
+     public void transferMoney(long acc) throws SQLException {
+        sc.nextLine();
+        System.out.print("Enter reciver account number : ");
+        long acc2 = sc.nextLong();
+        con.setAutoCommit(false);
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM accounts WHERE accNo = ?;");
+        ps.setLong(1, acc2);
+        if (ps.executeQuery().next() && acc != acc2) {
+            sc.nextLine();
+            System.out.print("Enter Amount : ");
+            int amount = sc.nextInt();
+            sc.nextLine();
+            System.out.print("Enter PIN : ");
+            int pin = sc.nextInt();
+            if (acc != 0 && acc2 != 0) {
+                if (isValidPin(acc, pin)) { 
+                    PreparedStatement psw = con.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE accNo = ?;");
+                    psw.setInt(1, amount);
+                    psw.setLong(2, acc);
+                    PreparedStatement psd = con.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE accNo = ?;");
+                    psd.setInt(1, amount);
+                    psd.setLong(2, acc2);
+                    if(psw.executeUpdate()>0 && psd.executeUpdate()>0){
+                        System.out.println(amount+" Tk. Transferred Successfully");
+                        con.commit();
+                        con.setAutoCommit(true);
+                    }else{
+                        System.out.println("Failed Transaction!!");
+                        con.rollback();
+                        con.setAutoCommit(true);
+                    }
+                } else {
+                    System.out.println("Invalid PIN!!!");
+                }
+            } else {
+                System.out.println("Invalid account number!!!");
+            }
+        } else {
+            System.out.println("Invalid Reciver Account Number!!!");
+        }
+     con.setAutoCommit(true);
+    }
     
 }
