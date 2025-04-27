@@ -108,6 +108,26 @@ public class AccountManager {
         }
     }
    
-   
+    // check amount
+
+    public void getBalance(long acc) throws SQLException {
+        sc.nextLine();
+        System.out.print("Enter PIN : ");
+        int pin = sc.nextInt();
+        con.setAutoCommit(false);
+        if (isValidPin(acc, pin)) {
+            PreparedStatement ps3 = con.prepareStatement("SELECT * FROM accounts WHERE accNo = ?;");
+            ps3.setLong(1, acc);
+            ResultSet rs = ps3.executeQuery();
+            if (rs.next()) {
+                System.out.println("Your current balance = " + rs.getInt("balance") + " TK.");
+            } else {
+                throw new RuntimeException();
+            }
+        } else {
+            System.out.println("Invalid PIN!!!");
+        }
+
+    }
     
 }
